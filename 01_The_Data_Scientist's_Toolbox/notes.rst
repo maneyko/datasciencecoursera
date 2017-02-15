@@ -17,7 +17,6 @@ Installing R Packages
   library(ggplot2)
   search()
 
-
 * Rtools -- Windows build tools
 * Correlation is not causation
 * Inferential analysis -- most common goal of statistics
