@@ -56,17 +56,17 @@ y_labeled <- merge(y, activity_labels)
 # Appropriately label data set with descriptive variable names
 
 labeled <- cbind(X_select, y_labeled['activity'])
-write.table(labeled, 'labeled.csv', row.name=FALSE)
+write.table(labeled, 'labeled.txt', row.name=FALSE)
 
 
 # Task 5
 # ------
-# Create a seperate tidy data set with the average of each variable
-# for each activity and each subject
+# Create a separate tidy data set with the average of each variable for
+# each activity and each subject
 
 tidy <- cbind(labeled, subject)
 
 tidy.melt <- melt(tidy, id=c('subject', 'activity'))
 tidy.cast <- dcast(tidy.melt, activity + subject ~ variable, mean)
 
-write.table(tidy.cast, 'tidy.csv', row.name=FALSE)
+write.table(tidy.cast, 'tidy.txt', row.name=FALSE)
