@@ -20,10 +20,13 @@ Then run the script `run_analysis.R` to:
 
 Running The Script
 ------------------
+The R script has a dependency ``reshape2`` for the ``melt`` and ``dcast``
+functions.
 
 ```bash
 wget -O data.zip https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip
 unzip data.zip
+Rscript -e "install.packages('reshape2', repo='https://cloud.r-project.org')"
 Rscript run_analysis.R
 ```
 
