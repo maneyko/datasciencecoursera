@@ -1,3 +1,6 @@
 [submodule "04_Exploratory_Data_Analysis/ExData_Plotting1"]
 	path = 04_Exploratory_Data_Analysis/ExData_Plotting1
 	url = https://github.com/maneyko/ExData_Plotting1
+[submodule "02_R_Programming/week03/ProgrammingAssignment2"]
+	path = 02_R_Programming/ProgrammingAssignment2
+	url = https://github.com/maneyko/ProgrammingAssignment2
