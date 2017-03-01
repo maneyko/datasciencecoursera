@@ -3,7 +3,7 @@
 
 library(ggplot2)
 
-NEI <- readRDS('summarySCC_PM25.rds')
+NEI <- readRDS('data/summarySCC_PM25.rds')
 DATA <- subset(NEI, fips == 24510)
 
 x <- aggregate(DATA$Emissions, by=list(year=DATA$year, type=DATA$type), FUN=sum)
