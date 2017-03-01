@@ -7,3 +7,6 @@
 [submodule "05 - Reproducible Research/assignment1/RepData_PeerAssessment1"]
 	path = 05 - Reproducible Research/assignment1/RepData_PeerAssessment1
 	url = https://github.com/maneyko/RepData_PeerAssessment1
+[submodule "05 - Reproducible Research/RepData_PeerAssessment1"]
+	path = 05 - Reproducible Research/RepData_PeerAssessment1
+	url = https://github.com/maneyko/RepData_PeerAssessment1
