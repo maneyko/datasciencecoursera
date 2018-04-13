@@ -6,4 +6,4 @@
 	url = https://github.com/maneyko/ProgrammingAssignment2
 [submodule "05 - Reproducible Research/RepData_PeerAssessment1"]
 	path = 05 - Reproducible Research/RepData_PeerAssessment1
-	url = https://github.com/maneyko/RepData_PeerAssessment1
+	url = git@github.com:maneyko/RepData_PeerAssessment1
