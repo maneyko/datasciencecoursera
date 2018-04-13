@@ -1,0 +1,202 @@
+# Exploration of NOAA Storm Database and Analysis of Severe Weather Events
+
+<!--
+
+Your data analysis must address the following questions:
+
+1. Across the United States, which types of events (as indicated in the
+   `EVTYPE` variable) are most harmful with respect to population health?
+
+2. Across the United States, which types of events have the greatest economic
+   consequences?
+
+-->
+
+## Synopsis
+
+<!-- at most 10 complete sentences -->
+
+By using the [NOAA Storm Database][1] ([csv][2]) and corresponding 
+[documentation][3] we are able to better understand the effects of severe
+weather. We do a brief analysis grouping and plotting severe weather events
+by category and resulting quantitative fields.
+
+It is useful to understand how different factors relate to one and other as it
+may be helpful in preventing or preparing for such disasters in the future.
+
+[1]: https://www.ncdc.noaa.gov/stormevents/
+[2]: https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2
+[3]: https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2Fpd01016005curr.pdf
+
+
+## Data Processing
+
+Load required libararies
+
+```{r}
+library(ggplot2)
+```
+
+
+```{r}
+datapath = "data/StormData.csv.bz2"
+dir.create(dirname(datapath), showWarnings = FALSE)
+if (! file.exists(datapath))
+    download.file(
+        "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2", datapath)
+```
+
+The data should be in the same directory as the script. Read in the data set
+(902,297 observations) with typing on initial load to save time.
+
+```{r}
+# Initial data frame
+df <- read.csv(datapath, header = TRUE, sep = ",",
+               colClasses = c("numeric", "character", "character", "character",
+                              "numeric", "character", "character", "character",
+                              "numeric", "character", "character", "character",
+                              "character", "numeric", "character", "character",
+                              "character", "character", "numeric", "numeric",
+                              "character", "numeric", "numeric", "numeric",
+                              "numeric", "character", "numeric", "character",
+                              "character", "character", "character", "numeric",
+                              "numeric", "numeric", "numeric", "character",
+                              "numeric"))
+```
+
+For this study, we are only interested in the following four categories. This
+brings the row count of the data frame down to 254,633 observations.
+
+```{r}
+# Small (filtered) data frame
+sf <- df[df$FATALITIES > 0
+         | df$INJURIES > 0
+         | df$PROPDMG > 0
+         | df$CROPDMG > 0,]
+```
+
+Now, we would like to group the `EVTYPE` (event type) into a categorial variable. There are
+six large categories: `Convection`, `Extreme Temperatures`, `Flood`, `Marine`,
+`Cyclone`, and `Winter`. I have devised a regular expression to cover all the
+major possibilities for the six categories. In addition to those, `Other`
+covers everything else.
+
+```{r}
+names <- c("Convection", "Extreme Temperatures", "Flood", "Marine",
+           "Cyclone", "Winter")
+expressions <- c(
+    paste("?.*lighting|lightn|ligntning|tornado|torndao|wind|tstm|thunder|wnd",
+          "|hail|turbulence|gustnado?.*", sep = ""),
+    "?.*cold|heat|warm|temperature|thermia?.*",
+    "?.*flood|rising|stream fld?.*",
+    "?.*coastal|tsunami|current|swells|tide|wave|seas|surf|high water?.*",
+    "?.*cyclone|hurricane|typhoon?.*",
+    "?.*wint|ice|avalan|sleet|snow|freez|blizz|frost|glaze|mixed?.*")
+for (i in 1:length(names)) {
+    mask <- grepl(expressions[i], sf$EVTYPE, ignore.case = TRUE)
+    sf[mask, "category"] = names[i]
+}
+mask <- is.na(sf$category)
+sf[mask, "category"] = "Other"
+```
+
+Below is a code snippet to convert the `propertydamageEXP` and `cropdamageEXP` 
+fields to numerical variables. If the field contains the pattern `h|H`, it
+recieves a value of `100`, `k|K` recieves `1000`, and so on. These values are
+specified in the corresponding documentation.
+
+```{r}
+sf$propertydamageEXP = 1
+patterns <- c("h|H", "k|K", "m|M", "b|B")
+values <- c(100, 1000, 1e+06, 1e+09)
+for (i in 1:length(values)) {
+    mask <- grepl(patterns[i], sf$PROPDMGEXP, ignore.case = TRUE)
+    sf[mask, "propertydamageEXP"] = values[i]
+}
+sf$propertydamage = sf$PROPDMG * sf$propertydamageEXP
+
+sf$cropdamageEXP = 1
+patterns <- c("k|K", "m|M", "b|B")
+values <- c(100, 1e+06, 1e+09)
+for (i in 1:length(values)) {
+    mask <- grepl(patterns[i], sf$CROPDMGEXP, ignore.case = TRUE)
+    sf[mask, "cropdamageEXP"] = values[i]
+}
+sf$cropdamage = sf$CROPDMG * sf$cropdamageEXP
+```
+
+
+## Results
+
+### Weather events that cause the largest number of incidents
+
+Create an `incidents` column that is comprised of the number of fatalities and
+injuries. This will be used to discover which severe weather events have the
+highest number of incidents.
+
+```{r}
+sf$incidents = sf$FATALITIES + sf$INJURIES
+```
+
+Create a frame that shows the name of the event with corresponding number of
+incidents. It shows that `Convection` events have the greatest number of 
+incidents.
+
+```{r}
+# Incident data
+inc <- aggregate(list(incidents = sf$incidents),
+                 by = list(event = sf$category),
+                 FUN = sum, na.rm = TRUE)
+```
+
+A corresponding plot showing the name of event and number of incidents.
+
+```{r}
+inc$event <- reorder(inc$event, -inc$incidents)
+
+ggplot(inc, aes(y = incidents)) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+    geom_bar(aes(x = event), data = inc, stat = "identity") +
+    ggtitle("Fatalities and Injuries") +
+    xlab("Event Category") +
+    ylab("No. of Fatalities and Injuries")
+```
+
+### Weather events that cause the largest amount of damage
+
+Create a `damage` field that contains damage to property as well as crops. This
+is so that we can find out which events cause the most dollar damage. This 
+column is in billions of dollars.
+
+```{r}
+sf$damage = ((sf$propertydamage + sf$cropdamage) / 1e+09)
+```
+
+Create a frame that has name of event corresponding to the dollar amount of 
+damage (in billions). The frame shows that `Flood` results in the greatest 
+amount of dollar damage.
+
+```{r}
+# Damage data frame
+dmg <- aggregate(list(damage = sf$damage),
+                 by = list(event = sf$category),
+                 FUN = sum, na.rm = TRUE)
+```
+
+A corresponding plot showing the name of event and billions of dollars in 
+damage.
+
+```{r}
+dmg$event <- reorder(dmg$event, -dmg$damage)
+
+ggplot(dmg, aes(y = damage)) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+    geom_bar(aes(x = event), data = dmg, stat = "identity") +
+    ggtitle("Property and crop damage") +
+    xlab("Event Category") +
+    ylab("Amount of damage (billions of $)")
+```
+
+
+<!-- vim: colorcolumn=80 nowrap
+-->

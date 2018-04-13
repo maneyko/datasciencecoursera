@@ -1,7 +1,7 @@
 # plot2.R
 # -------
 
-NEI <- readRDS('summarySCC_PM25.rds')
+NEI <- readRDS('data/summarySCC_PM25.rds')
 NEI <- subset(NEI, fips == 24510)
 
 x <- aggregate(NEI$Emissions, by=list(Category=NEI$year), FUN=sum)

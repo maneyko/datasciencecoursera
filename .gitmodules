@@ -4,9 +4,6 @@
 [submodule "02_R_Programming/week03/ProgrammingAssignment2"]
 	path = 02 - R Programming/ProgrammingAssignment2
 	url = https://github.com/maneyko/ProgrammingAssignment2
-[submodule "05 - Reproducible Research/assignment1/RepData_PeerAssessment1"]
-	path = 05 - Reproducible Research/assignment1/RepData_PeerAssessment1
-	url = https://github.com/maneyko/RepData_PeerAssessment1
 [submodule "05 - Reproducible Research/RepData_PeerAssessment1"]
 	path = 05 - Reproducible Research/RepData_PeerAssessment1
 	url = https://github.com/maneyko/RepData_PeerAssessment1

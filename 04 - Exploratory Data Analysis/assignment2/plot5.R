@@ -1,7 +1,7 @@
 # plot5.R
 # -------
 
-NEI <- readRDS('summarySCC_PM25.rds')
+NEI <- readRDS('data/summarySCC_PM25.rds')
 BAL <- subset(NEI, fips == '24510')
 
 vehicles <- subset(BAL, type == 'ON-ROAD')

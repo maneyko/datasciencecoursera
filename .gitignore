@@ -3,3 +3,6 @@
 *.txt
 *.xlsx
 *.zip
+*.rds
+/data/
+.Rhistory

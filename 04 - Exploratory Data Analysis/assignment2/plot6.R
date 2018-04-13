@@ -3,7 +3,7 @@
 
 library(ggplot2)
 
-NEI <- readRDS('summarySCC_PM25.rds')
+NEI <- readRDS('data/summarySCC_PM25.rds')
 DATA <- subset(NEI, fips == '24510' | fips == '06037')
 
 on_road <- subset(DATA, type == 'ON-ROAD')
