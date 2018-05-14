@@ -1,0 +1,117 @@
+
+---
+title: "Part 1 - Basic Inferential Data Analysis"
+author: "Peter Maneykowski"
+date: "4/15/2018"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Load `ToothGrowth` data set and do initial transformations.
+```{r}
+library(datasets); library(ggplot2)
+data("ToothGrowth")
+toothGrowth <- ToothGrowth 
+toothGrowth$dose <- as.factor(toothGrowth$dose)  # not loaded as categorical variable
+```
+**Basic exploratory data analyses.**
+
+Top of data set.
+```{r}
+head(toothGrowth)
+```
+Bottom of data set.
+```{r}
+tail(toothGrowth)
+```
+Unique values of `supp`: supplement type, either vitamin C (`VC`) or orange
+juice (`OJ`)
+```{r}
+unique(toothGrowth$supp)
+```
+Unique values of `dose`: dosage in milligrams (of vitamin C) per day. `dose` 
+is delivered as either a vitamin C supplement or orange juice.
+```{r}
+unique(toothGrowth$dose)
+```
+A sorted vector of unique values of `len`: length of teeth (in arbitrary
+units)
+```{r}
+sort(unique(toothGrowth$len))
+```
+
+**Basic summary** of the data set with an accompanying boxplot demonstrating
+the same relationship as the `summary` function.
+```{r}
+summary(toothGrowth)
+```
+```{r}
+ggplot(toothGrowth, aes(x=dose, y=len, fill=dose)) + 
+  geom_boxplot() +
+  ggtitle("Fig. 1: dispersion of tooth growth by dose") +
+  xlab("dose in mg") +
+  ylab("tooth length")
+```
+
+**Confidence intervals and/or hypothesis tests to compare tooth growth by supp
+and dose**:
+
+**Hypothesis 1**: Orance juice and vitamin C produce the same tooth growth
+across the entire data set.
+```{r}
+h1<-t.test(len ~ supp, data = toothGrowth)
+h1$conf.int
+h1$p.value
+```
+`conf.int` includes `0` and `p.value` is greater than the threshold of `0.05`,
+so the null hypothesis that we created cannot be rejected.
+
+**Hypothesis 2**: Orance juice and vitamin C produce the same tooth growth for
+a dosage of `0.5`mg/day.
+```{r}
+h2<-t.test(len ~ supp, data = subset(toothGrowth, dose == 0.5))
+h2$conf.int
+h2$p.value
+```
+`conf.int` does not include `0`, and `p.value` is below our threshold of
+`0.05`, so the null hypothesis can be rejected. The alternate hypothesis that
+at a dosage of `0.5`mg/day orange juice produces more tooth growth than
+vitamin C is accepted.
+
+**Hypothesis 3**: Oranje juice and vitamin C produce the same tooth growth for
+a dosage of `1.0`mg/day.
+```{r}
+h3<-t.test(len ~ supp, data = subset(toothGrowth, dose == 1))
+h3$conf.int
+h3$p.value
+
+```
+`conf.int` does not include `0`, and `p.value` is below our threshold of
+`0.05`, so the null hypothesis can be rejected. The alternate hypothesis that
+at a dosage of `1.0`mg/day orange juice produces more tooth growth than
+vitamin C is accepted.
+
+**Hypothesis 4**: Oranje juice and vitamin C produce the same tooth growth for
+a dosage of `2.0`mg/day.
+```{r}
+h4<-t.test(len ~ supp, data = subset(toothGrowth, dose == 2))
+h4$conf.int
+h4$p.value
+```
+`conf.int` does not include `0` and `p.value` is greater than the threshold of
+`0.05`, so the null hypothesis that we created cannot be rejected.
+
+**Conclusions and Assumptions**
+By using `t.test` for hypothesis testing, we may conclude that for dosages of
+`0.5`mg/day and `1.0`mg/day orange juice produces more tooth growth than
+vitamin C. Further, we may conclude that for a dosage of `2.0`mg/day orange
+juice and vitamin C produce the same amount of tooth growth. Finally, when
+looking at the entire data set, we cannot conclude that using oranje juice is
+more effective than using vitamin C. The assumptions used for testing were that
+there is a normal distribution of tooth lengths, and that there were no other
+factors that affect tooth length.
